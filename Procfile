@@ -1,0 +1,1 @@
+worker: pythonw rename.py
