@@ -36,7 +36,7 @@ async def rename(message):
                 fp = await f.to_file(use_cached=True)
                 new_attachments.append(fp)
     if len(new_attachments) > 0:
-        await send_to_channel(message.guild).send(files=new_attachments)
-                
+        send_to = await send_to_channel(message.guild)
+        await send_to.send(files=new_attachments)
                 
 bot.run(TOKEN)
