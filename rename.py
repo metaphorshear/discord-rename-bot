@@ -4,7 +4,9 @@ from nextcord.utils import get
 from dotenv import load_dotenv
 import re
 from time import time_ns
-from itertools import chain
+from nextcord import Embed, File
+from io import BytesIO
+import requests
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -28,18 +30,33 @@ async def send_to_channel(guild, channel=CHANNEL):
     return ch
 
 async def rename_file(f):
-    if re.search(unknown, f.filename) or re.search(imagen, f.filename):
-        f.filename = f"{time_ns()}.{f.filename.split('.')[-1]}"
-        fp = await f.to_file(use_cached=True)
-        return fp
+    if isinstance(f, Embed):
+        if re.search(unknown, f.url) or re.search(imagen, f.url):
+            req = requests.get(f.url)
+            if req.status_code != 200 and f.image != Embed.Empty:
+                req = requests.get(f.proxy_url)
+            raw_fp = BytesIO(req.content)
+            filename = f"{time_ns()}.{f.url.split('.')[-1]}"
+            fp = File(raw_fp, filename=filename)
+            return fp
+    elif isinstance(f, File):
+        if re.search(unknown, f.filename) or re.search(imagen, f.filename):
+            f.filename = f"{time_ns()}.{f.filename.split('.')[-1]}"
+            fp = await f.to_file(use_cached=True)
+            return fp
 
 @bot.listen('on_message')
 async def rename(message):
     new_attachments = []
-    for f in chain(message.attachments, message.embeds):
+    for f in message.attachments:
         fp = await rename_file(f)
-        new_attachments.append(fp)
-    new_attachments = list(filter(None, new_attachments))
+        if fp is not None:
+            new_attachments.append(fp)
+    for e in message.embeds:
+        if e.image != Embed.Empty or e.video != Embed.Empty:
+            fp = await rename_file(e)
+            if fp is not None:
+                new_attachments.append(fp)
     if len(new_attachments) > 0:
         send_to = await send_to_channel(message.guild)
         await send_to.send(files=new_attachments)
