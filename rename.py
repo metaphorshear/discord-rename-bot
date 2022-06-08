@@ -75,7 +75,7 @@ async def rename(message):
 def check_perms(ctx):
     return ctx.author.guild_permissions.administrator or (ctx.author.id == 437802570962960406)
  
-@bot.command()
+@bot.command(hidden=True)
 @commands.check(check_perms)
 async def reload(ctx, extension: str):
     async def handle(cmd, args):
@@ -88,9 +88,9 @@ async def reload(ctx, extension: str):
         else:
             await ctx.send("Reloaded successfully.")
     try:
-        handle(bot.reload_extension, extension)
+        await handle(bot.reload_extension, extension)
     except commands.ExtensionNotLoaded:
-        handle(bot.load_extension,extension)
+        await handle(bot.load_extension,extension)
 
 
 bot.run(TOKEN)
