@@ -67,7 +67,7 @@ async def rename(message):
 def check_perms(ctx):
     return ctx.author.guild_permissions.administrator or (ctx.author.id == 437802570962960406)
  
-@bot.command
+@bot.command()
 @commands.check(check_perms)
 async def reload(ctx, extension: str):
     try:
