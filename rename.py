@@ -78,7 +78,7 @@ def check_perms(ctx):
 @bot.command(hidden=True)
 @commands.check(check_perms)
 async def reload(ctx, extension: str):
-    async def handle(cmd, args):
+    async def handle(cmd, *args):
         try:
             cmd(*args)
         except commands.ExtensionNotFound:
