@@ -30,7 +30,12 @@ async def send_to_channel(guild, channel=CHANNEL):
     return ch
 
 async def rename_file(f):
-    if isinstance(f, Embed):
+    try:
+        if re.search(unknown, f.filename) or re.search(imagen, f.filename):
+            f.filename = f"{time_ns()}.{f.filename.split('.')[-1]}"
+            fp = await f.to_file(use_cached=True)
+            return fp
+    except AttributeError:
         if re.search(unknown, f.url) or re.search(imagen, f.url):
             req = requests.get(f.url)
             if req.status_code != 200 and f.image != Embed.Empty:
@@ -39,11 +44,7 @@ async def rename_file(f):
             filename = f"{time_ns()}.{f.url.split('.')[-1]}"
             fp = File(raw_fp, filename=filename)
             return fp
-    elif isinstance(f, File):
-        if re.search(unknown, f.filename) or re.search(imagen, f.filename):
-            f.filename = f"{time_ns()}.{f.filename.split('.')[-1]}"
-            fp = await f.to_file(use_cached=True)
-            return fp
+        
 
 @bot.listen('on_message')
 async def rename(message):
@@ -60,5 +61,5 @@ async def rename(message):
     if len(new_attachments) > 0:
         send_to = await send_to_channel(message.guild)
         await send_to.send(files=new_attachments)
-                
+
 bot.run(TOKEN)
