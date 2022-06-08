@@ -4,7 +4,7 @@ from nextcord.utils import get
 from dotenv import load_dotenv
 import re
 from time import time_ns
-from nextcord import Embed, File
+from nextcord import Embed, File, Intents
 from io import BytesIO
 import requests
 import logging
@@ -14,7 +14,15 @@ logging.basicConfig(level=logging.DEBUG)
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 CHANNEL = os.getenv('DEST_CHANNEL')
-bot = commands.Bot(command_prefix='r!')
+
+intents = Intents.default()
+intents.message_content = True
+intents.presences = False
+intents.typing = False
+
+bot = commands.Bot(command_prefix='r!', intents=intents)
+
+
 unknown = re.compile(r'unknown\.\w{2,4}$')
 imagen = re.compile(r'image\d+\.\w{2,4}$')
 
