@@ -85,7 +85,7 @@ async def reload(ctx, extension: str):
         except commands.ExtensionNotFound:
             await ctx.send(f"No such extension: {extension}.")
         except commands.ExtensionFailed as e:
-            await ctx.send(f"Extension failed. {e.original.__class__.__name__}")
+            await ctx.send(f"Extension failed. {e.original.__class__.__name__} {str(e.original)}")
         else:
             await ctx.send("Reloaded successfully.")
     try:
