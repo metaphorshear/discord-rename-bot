@@ -1,10 +1,11 @@
+from datetime import timedelta
 import os
 from nextcord.ext import commands
-from nextcord.utils import get
+from nextcord.utils import get, utcnow
 from dotenv import load_dotenv
 import re
 from time import time_ns
-from nextcord import Embed, File, Intents
+from nextcord import Embed, File, Intents, Forbidden, HTTPException
 from io import BytesIO
 import requests
 import logging
@@ -20,7 +21,8 @@ intents.message_content = True
 intents.presences = False
 intents.typing = False
 
-bot = commands.Bot(command_prefix='r!', intents=intents)
+help = commands.DefaultHelpCommand(no_category="General Commands")
+bot = commands.Bot(command_prefix='r!', intents=intents, help_command=help)
 
 
 unknown = re.compile(r'unknown\.\w{2,4}$')
@@ -47,14 +49,17 @@ async def rename_file(f):
             fp = await f.to_file(use_cached=True)
             return fp
     except AttributeError:
-        if re.search(unknown, f.url) or re.search(imagen, f.url):
-            req = requests.get(f.url)
-            if req.status_code != 200 and f.image != Embed.Empty:
-                req = requests.get(f.proxy_url)
-            raw_fp = BytesIO(req.content)
-            filename = f"{time_ns()}.{f.url.split('.')[-1]}"
-            fp = File(raw_fp, filename=filename)
-            return fp  
+        try:
+            if re.search(unknown, f.url) or re.search(imagen, f.url):
+                req = requests.get(f.url)
+                if req.status_code != 200 and f.image != Embed.Empty:
+                    req = requests.get(f.proxy_url)
+                raw_fp = BytesIO(req.content)
+                filename = f"{time_ns()}.{f.url.split('.')[-1]}"
+                fp = File(raw_fp, filename=filename)
+                return fp  
+        except TypeError:
+            pass
 
 @bot.listen('on_message')
 async def rename(message):
@@ -75,9 +80,50 @@ async def rename(message):
 def check_perms(ctx):
     return ctx.author.guild_permissions.administrator or (ctx.author.id == 437802570962960406)
  
+@bot.command()
+async def ago(ctx, num: int, unit: str, *channels: str):
+    """
+    Rename images from the past (if they were unknown or image#).
+    Specify the number, unit, and channel(s).  E.g., `r!ago 2 days general nsfw`.
+    Supported units are `weeks`, `days`, and `hours`.
+    """
+    scold = "I don't think you should go back more than three weeks."
+    limits = {"weeks": 3, "week": 3, "days": 21, "day": 21, "hours": 504, "hour": 504}
+    if unit not in limits:
+        await ctx.send("Supported units are `weeks`, `days`, and `hours`.")
+        return
+    if unit in ["hours", "hour"] and num > limits[unit]:
+        await ctx.send(scold + '\n' +
+        "Honestly, I should limit you to 72 hours.  This is ridiculous." + '\n' +
+        "Who does this?  Really?")
+        return
+    elif num > limits[unit]:
+        await ctx.send(scold)
+        return
+    else:
+        if unit[-1] != "s":
+            unit += "s"
+        delta = timedelta(**{unit: num})
+        after_date = utcnow() - delta
+        for channel in channels:
+            handle = get(ctx.guild.channels, name=channel)
+            if handle is None:
+                await ctx.send(f"Channel {channel} not found.")
+            else:
+                try:
+                    hist = await handle.history(after=after_date).flatten()
+                except Forbidden:
+                    await ctx.send(f"You do not have permission to get the history of {channel}")
+                except HTTPException as e:
+                    await ctx.send(f"There was an error getting {channel}.  The HTTP status code was {e.status}")
+                else:
+                    for message in hist:
+                        await rename(message)
+        await ctx.send("Completed.") 
+ 
 @bot.command(hidden=True)
 @commands.check(check_perms)
-async def reload(ctx, extension: str):
+async def load(ctx, extension: str):
     await ctx.send("Attempting to load extension.")
     async def handle(cmd, *args):
         try:
@@ -89,9 +135,9 @@ async def reload(ctx, extension: str):
         else:
             await ctx.send("Reloaded successfully.")
     try:
-        await handle(bot.reload_extension, extension)
-    except commands.ExtensionNotLoaded:
-        await handle(bot.load_extension,extension)
+        await handle(bot.load_extension, extension)
+    except commands.ExtensionAlreadyLoaded:
+        await handle(bot.reload_extension,extension)
 
 
 bot.run(TOKEN)
