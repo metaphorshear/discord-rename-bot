@@ -35,12 +35,14 @@ async def ago(ctx, num: int, unit: str, *channels: str):
                 await ctx.send(f"Channel {channel} not found.")
             else:
                 try:
-                    async for message in handle.history(after=after_date):
-                        await rename(message)
+                    hist = handle.history(after=after_date)
                 except Forbidden:
                     await ctx.send(f"You do not have permission to get the history of {channel}")
                 except HTTPException as e:
                     await ctx.send(f"There was an error getting {channel}.  The HTTP status code was {e.status}")
+                else:
+                    async for message in hist:
+                        await rename(message)
         await ctx.send("Completed.")
         
 def setup(bot):
