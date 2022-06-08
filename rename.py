@@ -9,7 +9,7 @@ from io import BytesIO
 import requests
 import logging
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.WARN)
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -78,14 +78,14 @@ def check_perms(ctx):
 @bot.command(hidden=True)
 @commands.check(check_perms)
 async def reload(ctx, extension: str):
+    await ctx.send("Attempting to load extension.")
     async def handle(cmd, *args):
-        await ctx.send("Attempting to load extension.")
         try:
             cmd(*args)
         except commands.ExtensionNotFound:
             await ctx.send(f"No such extension: {extension}.")
         except commands.ExtensionFailed as e:
-            await ctx.send(f"Extension failed.  Exception type is {type(e)}")
+            await ctx.send(f"Extension failed. {e.__class__.__name__}")
         else:
             await ctx.send("Reloaded successfully.")
     try:
