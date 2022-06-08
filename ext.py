@@ -35,7 +35,7 @@ async def ago(ctx, num: int, unit: str, *channels: str):
                 await ctx.send(f"Channel {channel} not found.")
             else:
                 try:
-                    hist = handle.history(after=after_date)
+                    hist = handle.history(after=after_date).flatten()
                 except Forbidden:
                     await ctx.send(f"You do not have permission to get the history of {channel}")
                 except HTTPException as e:
