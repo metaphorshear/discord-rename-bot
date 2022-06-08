@@ -78,9 +78,9 @@ def check_perms(ctx):
 @bot.command()
 @commands.check(check_perms)
 async def reload(ctx, extension: str):
-    async def handle(cmd, args, kwargs):
+    async def handle(cmd, args):
         try:
-            cmd(*args, **kwargs)
+            cmd(*args)
         except commands.ExtensionNotFound:
             await ctx.send(f"No such extension: {extension}.")
         except commands.ExtensionFailed as e:
