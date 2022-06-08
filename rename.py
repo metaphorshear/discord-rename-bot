@@ -79,6 +79,7 @@ def check_perms(ctx):
 @commands.check(check_perms)
 async def reload(ctx, extension: str):
     async def handle(cmd, *args):
+        await ctx.send("Attempting to load extension.")
         try:
             cmd(*args)
         except commands.ExtensionNotFound:
