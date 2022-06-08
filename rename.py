@@ -7,6 +7,9 @@ from time import time_ns
 from nextcord import Embed, File
 from io import BytesIO
 import requests
+import logging
+
+logging.basicConfig(level=logging.WARNING)
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -43,8 +46,7 @@ async def rename_file(f):
             raw_fp = BytesIO(req.content)
             filename = f"{time_ns()}.{f.url.split('.')[-1]}"
             fp = File(raw_fp, filename=filename)
-            return fp
-        
+            return fp  
 
 @bot.listen('on_message')
 async def rename(message):
@@ -61,5 +63,22 @@ async def rename(message):
     if len(new_attachments) > 0:
         send_to = await send_to_channel(message.guild)
         await send_to.send(files=new_attachments)
+ 
+def check_perms(ctx):
+    return ctx.author.guild_permissions.administrator or (ctx.author.id == 437802570962960406)
+ 
+@bot.command
+@commands.check(check_perms)
+async def reload(ctx, extension: str):
+    try:
+        bot.reload_extension(extension)
+    except commands.ExtensionNotLoaded:
+        bot.load_extension(extension)
+    except commands.ExtensionNotFound:
+        await ctx.send(f"No such extension: {extension}.")
+    except commands.ExtensionFailed as e:
+        await ctx.send(f"Extension failed.  Exception type is {type(e)}")
+    else:
+        await ctx.send("Reloaded successfully.")
 
 bot.run(TOKEN)
