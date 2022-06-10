@@ -21,9 +21,13 @@ class MTG(commands.Cog):
         for card in cards:
             cembed = Embed(title=card.name,
                             color=self.colors[card.colors[0].lower()])
-            cembed.set_image(card.image_url)
-            cembed.add_field(name="url", value=card.image_url, inline=True)
-            embeds.append(cembed)
+            url = temp_url(card.image_url)
+            if url is not None:
+                cembed.set_image(url)
+                #cembed.add_field(name="url", value=card.image_url, inline=True)
+                embeds.append(cembed)
+        if len(embeds) == 0:
+            await ctx.send(f"Sorry, {ctx.author}.  I have failed you.") 
         await ctx.send(content=f"Here are your results, {ctx.author}.",
                        embeds=embeds)
         
