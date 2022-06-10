@@ -21,7 +21,7 @@ class MTG(commands.Cog):
         for card in cards:
             cembed = Embed(title=card.name,
                             color=self.colors[card.colors[0].lower()])
-            cembed.set_image(card.imageUrl)
+            cembed.set_image(card.image_url)
             embeds.append(cembed)
         await ctx.send(content=f"Here are your results, {ctx.author}.",
                        embeds=embeds)
