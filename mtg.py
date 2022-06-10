@@ -24,8 +24,11 @@ class MTG(commands.Cog):
         cards = cards[:10]
         embeds = []
         for card in cards:
+            color = Embed.Empty
+            if card.colors is not None:
+                color = self.colors[card.colors[0].lower()]
             cembed = Embed(title=card.name,
-                            color=self.colors[card.colors[0].lower()])
+                            color=color)
             url = temp_url(card.image_url)
             if url is not None:
                 cembed.set_image(url)
