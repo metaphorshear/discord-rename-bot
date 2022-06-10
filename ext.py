@@ -22,7 +22,7 @@ class MTG(commands.Cog):
             cembed = Embed(title=card.name,
                             color=self.colors[card.colors[0].lower()])
             cembed.set_image(card.image_url)
-            cembed.add_field("url", card.image_url, True)
+            cembed.add_field(name="url", value=card.image_url, inline=True)
             embeds.append(cembed)
         await ctx.send(content=f"Here are your results, {ctx.author}.",
                        embeds=embeds)
