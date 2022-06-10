@@ -141,5 +141,5 @@ async def load(ctx, extension: str):
     except commands.ExtensionAlreadyLoaded:
         await handle(bot.reload_extension,extension)
 
-
+bot.load_extension("mtg")
 bot.run(TOKEN)

@@ -13,7 +13,9 @@ class MTG(commands.Cog):
         
     @commands.command()
     async def image(self, ctx, *name: str):
-        cards = Card.where(name=" ".join(name)).where(contains='imageUrl').all()
+        name = " ".join(name)
+        await ctx.send(f"Okay, searching for cards matching {name}")
+        cards = Card.where(name=name).where(contains='imageUrl').all()
         if len(cards) == 0:
             await ctx.send("No cards (with images) were found matching your query.")
             return
@@ -24,7 +26,6 @@ class MTG(commands.Cog):
             url = temp_url(card.image_url)
             if url is not None:
                 cembed.set_image(url)
-                #cembed.add_field(name="url", value=card.image_url, inline=True)
                 embeds.append(cembed)
         if len(embeds) == 0 or all(True if e == Embed.Empty else False for e in embeds):
             await ctx.send(f"Sorry, {ctx.author}.  I have failed you.") 
