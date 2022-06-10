@@ -20,7 +20,7 @@ class MTG(commands.Cog):
         embeds = []
         for card in cards:
             cembed = Embed(title=card.name,
-                            color=self.colors[card.colors[0]])
+                            color=self.colors[card.colors[0].lower()])
             cembed.set_image(card.imageUrl)
             embeds.append(cembed)
         await ctx.send(content=f"Here are your results, {ctx.author}.",
