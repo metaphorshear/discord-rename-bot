@@ -30,7 +30,9 @@ class MTG(commands.Cog):
         if len(embeds) == 0 or all(True if e == Embed.Empty else False for e in embeds):
             await ctx.send(f"Sorry, {ctx.author}.  I have failed you.") 
         await ctx.send(content=f"Here are your results, {ctx.author}.",
-                       embeds=embeds)
+                       embeds=embeds[:10])
+        if len(embeds > 10):
+            await ctx.send("Only the first 10 results are shown.  In the future this may be changed.")
         
             
 
