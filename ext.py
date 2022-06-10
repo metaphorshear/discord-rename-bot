@@ -5,11 +5,11 @@ from common import *
 class MTG(commands.Cog):
     def __init__(self, bot: commands.bot):
         self.bot = bot
-        self.colors={"white": "#fcfdf0",
-                "blue": "#0aa2c9",
-                "black": "#19120f",
-                "red": "#b9251d",
-                "green": "#185234"}
+        self.colors={"white": 0xfcfdf0,
+                "blue": 0x0aa2c9,
+                "black": 0x19120f,
+                "red": 0xb9251d,
+                "green": 0x185234}
         
     @commands.command()
     async def image(self, ctx, *name: str):
