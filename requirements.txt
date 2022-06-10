@@ -2,3 +2,4 @@ nextcord
 python-dotenv
 requests
 mtgsdk
+requests_futures
