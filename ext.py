@@ -26,7 +26,7 @@ class MTG(commands.Cog):
                 cembed.set_image(url)
                 #cembed.add_field(name="url", value=card.image_url, inline=True)
                 embeds.append(cembed)
-        if len(embeds) == 0:
+        if len(embeds) == 0 or all(True if e == Embed.Empty else False for e in embeds):
             await ctx.send(f"Sorry, {ctx.author}.  I have failed you.") 
         await ctx.send(content=f"Here are your results, {ctx.author}.",
                        embeds=embeds)
