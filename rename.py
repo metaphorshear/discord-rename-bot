@@ -1,13 +1,12 @@
+from asyncio import Future
 from datetime import timedelta
 import os
-from nextcord.ext import commands
 from nextcord.utils import get, utcnow
 from dotenv import load_dotenv
 import re
 from time import time_ns
 from nextcord import Embed, File, Intents, Forbidden, HTTPException
-from io import BytesIO
-import requests
+from common import *
 import logging
 
 logging.basicConfig(level=logging.WARN)
@@ -51,10 +50,13 @@ async def rename_file(f):
     except AttributeError:
         try:
             if re.search(unknown, f.url) or re.search(imagen, f.url):
-                req = requests.get(f.url)
-                if req.status_code != 200 and f.image != Embed.Empty:
-                    req = requests.get(f.proxy_url)
-                raw_fp = BytesIO(req.content)
+                sesh = FuturesSession()
+                req = sesh.get(f.url)
+                res = req.result()
+                if res.status_code != 200 and f.image != Embed.Empty:
+                    req = sesh.get(f.proxy_url)
+                    res = req.result()
+                raw_fp = BytesIO(res.content)
                 filename = f"{time_ns()}.{f.url.split('.')[-1]}"
                 fp = File(raw_fp, filename=filename)
                 return fp  

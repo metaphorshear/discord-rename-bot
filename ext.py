@@ -1,49 +1,33 @@
-from nextcord.ext import commands
-from nextcord.utils import utcnow, get
-from nextcord import Forbidden, HTTPException
-from datetime import timedelta
-from rename import rename
+from operator import contains
+from mtgsdk import Card
+from common import *
 
-@commands.command()
-async def ago(ctx, num: int, unit: str, *channels: str):
-    """
-    Rename images from the past (if they were unknown or image#).
-    Specify the number, unit, and channel(s).  E.g., `r!ago 2 days general nsfw`.
-    Supported units are `weeks`, `days`, and `hours`.
-    """
-    scold = "I don't think you should go back more than three weeks."
-    limits = {"weeks": 3, "week": 3, "days": 21, "day": 21, "hours": 504, "hour": 504}
-    if unit not in limits:
-        await ctx.send("Supported units are `weeks`, `days`, and `hours`.")
-        return
-    if unit in ["hours", "hour"] and num > limits[unit]:
-        await ctx.send(scold + '\n' +
-        "Honestly, I should limit you to 72 hours.  This is ridiculous." + '\n' +
-        "Who does this?  Really?")
-        return
-    elif num > limits[unit]:
-        await ctx.send(scold)
-        return
-    else:
-        if unit[-1] != "s":
-            unit += "s"
-        delta = timedelta(**{unit: num})
-        after_date = utcnow() - delta
-        for channel in channels:
-            handle = get(ctx.guild.channels, name=channel)
-            if handle is None:
-                await ctx.send(f"Channel {channel} not found.")
-            else:
-                try:
-                    hist = await handle.history(after=after_date).flatten()
-                except Forbidden:
-                    await ctx.send(f"You do not have permission to get the history of {channel}")
-                except HTTPException as e:
-                    await ctx.send(f"There was an error getting {channel}.  The HTTP status code was {e.status}")
-                else:
-                    for message in hist:
-                        await rename(message)
-        await ctx.send("Completed.")
+class MTG(commands.Cog):
+    def __init__(self, bot: commands.bot):
+        self.bot = bot
+        self.colors={"white": "#fcfdf0",
+                "blue": "#0aa2c9",
+                "black": "#19120f",
+                "red": "#b9251d",
+                "green": "#185234"}
+        
+    @commands.command()
+    async def image(self, ctx, *name: str):
+        cards = Card.where(name=" ".join(name)).where(contains='image_url').all()
+        if len(cards) == 0:
+            await ctx.send("No cards (with images) were found matching your query.")
+            return
+        embeds = []
+        for card in cards:
+            cembed = Embed(title=card.name,
+                            color=self.colors(card.colors[0]))
+            cembed.set_image(card.image_url)
+            embeds.append(cembed)
+        await ctx.send(content=f"Here are your results, {ctx.author}.",
+                       embeds=embeds)
+        
+            
+
         
 def setup(bot):
-    bot.add_command(ago)
+    bot.add_command()
