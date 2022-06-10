@@ -12,7 +12,7 @@ class MTG(commands.Cog):
                 "green": 0x185234}
         
     @commands.command()
-    async def image(self, ctx, *name: str):
+    async def cards(self, ctx, *name: str):
         name = " ".join(name)
         await ctx.send(f"Okay, searching for cards matching {name}")
         cards = Card.where(name=name).where(contains='imageUrl').all()
