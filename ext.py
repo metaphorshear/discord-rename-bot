@@ -30,4 +30,4 @@ class MTG(commands.Cog):
 
         
 def setup(bot):
-    bot.add_command()
+    bot.add_cog(MTG(bot))
