@@ -19,6 +19,9 @@ class MTG(commands.Cog):
         if len(cards) == 0:
             await ctx.send("No cards (with images) were found matching your query.")
             return
+        if len(cards) > 10:
+            await ctx.send("Only the first 10 results will be shown.")
+        cards = cards[:10]
         embeds = []
         for card in cards:
             cembed = Embed(title=card.name,
@@ -30,9 +33,7 @@ class MTG(commands.Cog):
         if len(embeds) == 0 or all(True if e == Embed.Empty else False for e in embeds):
             await ctx.send(f"Sorry, {ctx.author}.  I have failed you.") 
         await ctx.send(content=f"Here are your results, {ctx.author}.",
-                       embeds=embeds[:10])
-        if len(embeds > 10):
-            await ctx.send("Only the first 10 results are shown.  In the future this may be changed.")
+                       embeds=embeds)
         
             
 
