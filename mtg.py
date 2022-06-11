@@ -29,6 +29,9 @@ class MTG(commands.Cog):
     
     @commands.command()
     async def cards(self, ctx, *name: str):
+        """
+        Search for Magic the Gathering cards.  Enter your terms.
+        """
         name = " ".join(name)
         await ctx.send(f"Okay, searching for cards matching \"{name}\"")
         cards = Card.where(name=name).where(contains='imageUrl').all()
