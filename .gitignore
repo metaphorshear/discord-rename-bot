@@ -1,1 +1,5 @@
 .vscode/launch.json
+__pycache__/common.cpython-39.pyc
+__pycache__/ext.cpython-39.pyc
+__pycache__/mtg.cpython-39.pyc
+__pycache__/rename.cpython-39.pyc

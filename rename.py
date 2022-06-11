@@ -19,6 +19,7 @@ intents = Intents.default()
 intents.message_content = True
 intents.presences = False
 intents.typing = False
+intents.webhooks = True
 
 help = commands.DefaultHelpCommand(no_category="General Commands")
 bot = commands.Bot(command_prefix='r!', intents=intents, help_command=help)
